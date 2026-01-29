@@ -1,4 +1,3 @@
-import { Directus } from '@directus/sdk'
 import fs from 'fs'
 import path from 'path'
 
@@ -15,9 +14,6 @@ const main = async () => {
   if (platform === 'payload') {
     authHeader = await getPayloadAuthHeader()
     performQuery = async () => await performPayloadQuery(authHeader, query)
-  } else if (platform === 'directus') {
-    authHeader = await getDirectusAuthHeader()
-    performQuery = async () => await performDirectusQuery(authHeader, query)
   } else if (platform === 'strapi') {
     authHeader = await getStrapiAuthHeader()
     performQuery = async () => await performStrapiQuery(authHeader, query)
@@ -77,26 +73,6 @@ async function getPayloadAuthHeader() {
   return `JWT ${token}`
 }
 
-async function getDirectusAuthHeader() {
-  const directus = new Directus('http://localhost:8055/', {
-    auth: {
-      mode: 'cookie',
-    },
-  })
-
-  await directus.auth
-    .login({
-      email: 'dev@payloadcms.com',
-      password: 'test',
-    })
-    .catch(() => {
-      console.error('Invalid credentials')
-    })
-
-  const token = await directus.auth.token
-  return `Bearer ${token}`
-}
-
 async function getStrapiAuthHeader() {
   const res = await fetch('http://localhost:1337/api/auth/local', {
     method: 'POST',
@@ -115,19 +91,6 @@ async function getStrapiAuthHeader() {
 // Queries
 async function performPayloadQuery(authHeader: string, query: string) {
   await fetch('http://localhost:3000/api/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: authHeader,
-    },
-    body: JSON.stringify({
-      query,
-    }),
-  })
-}
-
-async function performDirectusQuery(authHeader: string, query: string) {
-  await fetch('http://localhost:8055/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
