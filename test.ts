@@ -59,7 +59,7 @@ main()
 
 // Auth
 async function getPayloadAuthHeader() {
-  const res = await fetch('http://localhost:3000/api/users/login', {
+  const res = await fetch('http://127.0.0.1:3000/api/users/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ async function getPayloadAuthHeader() {
 }
 
 async function getStrapiAuthHeader() {
-  const res = await fetch('http://localhost:1337/api/auth/local', {
+  const res = await fetch('http://127.0.0.1:1337/api/auth/local', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ async function getStrapiAuthHeader() {
 
 // Queries
 async function performPayloadQuery(authHeader: string, query: string) {
-  await fetch('http://localhost:3000/api/graphql', {
+  await fetch('http://127.0.0.1:3000/api/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ async function performPayloadQuery(authHeader: string, query: string) {
 }
 
 async function performStrapiQuery(authHeader: string, query: string) {
-  await fetch('http://localhost:1337/graphql', {
+  await fetch('http://127.0.0.1:1337/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

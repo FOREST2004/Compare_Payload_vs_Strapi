@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 
 const recordCount = 30
 
-const baseUrl = 'http://localhost:1337'
+const baseUrl = 'http://127.0.0.1:1337'
 const apiUrl = `${baseUrl}/api`
 
 const headers = {
@@ -14,7 +14,7 @@ const headers = {
 async function main() {
   // TODO: drop and recreate DB
 
-  const res = await fetch(`${apiUrl}/auth/local/register`, {
+  const registerRes = await fetch(`${apiUrl}/auth/local/register`, {
     body: JSON.stringify({
       username: 'User',
       email: 'user@user.com',
@@ -23,8 +23,25 @@ async function main() {
     headers,
     method: 'post',
   })
-  if (res.status !== 200) throw Error('Unable to register user.')
-  const { jwt: token } = await res.json()
+
+  let token: string
+  if (registerRes.status === 200) {
+    const data = await registerRes.json()
+    token = data.jwt
+  } else {
+    // User already exists, login instead
+    const loginRes = await fetch(`${apiUrl}/auth/local`, {
+      body: JSON.stringify({
+        identifier: 'user@user.com',
+        password: 'Test123123',
+      }),
+      headers,
+      method: 'post',
+    })
+    if (loginRes.status !== 200) throw Error('Unable to register or login user.')
+    const data = await loginRes.json()
+    token = data.jwt
+  }
 
   const relationshipAIDs: number[] = []
   const relationshipBIDs: number[] = []
