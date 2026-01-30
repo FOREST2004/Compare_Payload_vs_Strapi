@@ -6,17 +6,19 @@ require('isomorphic-fetch')
 const getAverage = arr => arr.reduce((p, c) => p + c, 0) / arr.length
 
 const [platform] = process.argv.slice(2)
-const query = fs.readFileSync(path.resolve(__dirname, platform, 'query.graphql'), 'utf8')
+// const query = fs.readFileSync(path.resolve(__dirname, platform, 'query.graphql'), 'utf8')
 
 const main = async () => {
   let authHeader
   let performQuery
   if (platform === 'payload') {
     authHeader = await getPayloadAuthHeader()
-    performQuery = async () => await performPayloadQuery(authHeader, query)
+    // performQuery = async () => await performPayloadQuery(authHeader, query)
+    performQuery = async () => await performPayloadRestQuery(authHeader)
   } else if (platform === 'strapi') {
     authHeader = await getStrapiAuthHeader()
-    performQuery = async () => await performStrapiQuery(authHeader, query)
+    // performQuery = async () => await performStrapiQuery(authHeader, query)
+    performQuery = async () => await performStrapiRestQuery(authHeader)
   } else {
     throw new Error(`Unknown platform: ${platform}`)
   }
@@ -88,29 +90,56 @@ async function getStrapiAuthHeader() {
   return `Bearer ${jwt}`
 }
 
-// Queries
-async function performPayloadQuery(authHeader: string, query: string) {
-  await fetch('http://127.0.0.1:3000/api/graphql', {
-    method: 'POST',
+// GraphQL Queries (commented out)
+// async function performPayloadQuery(authHeader: string, query: string) {
+//   await fetch('http://127.0.0.1:3000/api/graphql', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       Authorization: authHeader,
+//     },
+//     body: JSON.stringify({
+//       query,
+//     }),
+//   })
+// }
+//
+// async function performStrapiQuery(authHeader: string, query: string) {
+//   await fetch('http://127.0.0.1:1337/graphql', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       Authorization: authHeader,
+//     },
+//     body: JSON.stringify({
+//       query,
+//     }),
+//   })
+// }
+
+// REST Queries
+async function performPayloadRestQuery(authHeader: string) {
+  await fetch('http://127.0.0.1:3000/api/documents?depth=2', {
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: authHeader,
     },
-    body: JSON.stringify({
-      query,
-    }),
   })
 }
 
-async function performStrapiQuery(authHeader: string, query: string) {
-  await fetch('http://127.0.0.1:1337/graphql', {
-    method: 'POST',
+async function performStrapiRestQuery(authHeader: string) {
+  const params = [
+    'populate[relationship_as][populate][relationship_b]=*',
+    'populate[blocks][populate][relationship_a][populate][relationship_b]=*',
+    'populate[blocks][populate][relationship_as][populate][relationship_b]=*',
+    'populate[Group][populate][NestedGroup]=*',
+    'populate[array][populate][NestedArray][populate][relationship_a][populate][relationship_b]=*',
+  ].join('&')
+
+  await fetch(`http://127.0.0.1:1337/api/documents?${params}`, {
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: authHeader,
     },
-    body: JSON.stringify({
-      query,
-    }),
   })
 }
