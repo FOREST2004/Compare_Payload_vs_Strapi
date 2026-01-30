@@ -72,6 +72,7 @@ async function getPayloadAuthHeader() {
     }),
   })
   const { token } = await res.json()
+  console.log('Payload token:', token)
   return `JWT ${token}`
 }
 
@@ -87,6 +88,7 @@ async function getStrapiAuthHeader() {
     }),
   })
   const { jwt } = await res.json()
+  console.log('Strapi token:', jwt)
   return `Bearer ${jwt}`
 }
 
