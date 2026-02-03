@@ -14,8 +14,8 @@ export const seed = async (payload: Payload): Promise<void> => {
     }
   })
 
-  const relationshipAIDs = [];
-  const relationshipBIDs = [];
+  const relationshipAIDs: number[] = [];
+  const relationshipBIDs: number[] = [];
 
   // Create 30 relationship-b docs
 
@@ -70,7 +70,7 @@ export const seed = async (payload: Payload): Promise<void> => {
     const randomRelationshipAID = relationshipAIDs[Math.floor(Math.random() * relationshipAIDs.length)]
 
     blockData.push({
-      blockType: 'relationToOne',
+      blockType: 'relationToOne' as const,
       text: uuid(),
       relation: randomRelationshipAID,
     })
@@ -78,7 +78,7 @@ export const seed = async (payload: Payload): Promise<void> => {
 
   for (let i = 0; i <= 10; i++) {
     blockData.push({
-      blockType: 'hasManyRelations',
+      blockType: 'hasManyRelations' as const,
       text: uuid(),
       relationToMany: Array.from(Array(3).keys()).map(() => {
         return relationshipAIDs[Math.floor(Math.random() * relationshipAIDs.length)]
